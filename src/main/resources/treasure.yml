@@ -1,0 +1,121 @@
+#
+# Whether this bag will trigger the drop check
+#
+enabled: false
+
+#
+# The material of the bag item. This is "CHEST" by default.
+# When using a data value, make sure the entire line has ''s around it!
+material: 'CHEST:0'
+
+#
+# The item's display name. 
+# You may use color codes with the '&' character.
+#
+displayname: "&3Mysterious Treasure"
+
+#
+# A friendly message on the item lore description.
+# You may use color codes with the '&' character.
+# May be a single line or multiple lines.
+#
+openmsg:
+  - "&2Hold item and right click to open!"
+
+#
+# Can only drop from these mobs.
+# Leave empty to drop from all mobs.
+limit-mob:
+  - ZOMBIE
+
+#
+# Chance that the bag fails and player gets Nausea
+failure-chance: 0.0
+
+#
+# message to send player when it fails
+failure-lines:
+  - '&2That didn''t feel very good.'
+  - '&2It was a trap!'
+
+#
+# Global Mob drop-chance.
+#
+# On top of the global drop-chance, this states the
+# chance of this particular bag dropping by a mob.
+#
+# 0.05 is %5, 0.10 is 10%, 0.5 is 50% and so on.
+#
+drop-chance: 0.05
+
+#
+# Same as drop-chance, except defined per mob.
+# Values here override the drop-chance above.
+drop-chance-mobs:
+  ZOMBIE: 0.2
+
+#
+# The items in the bag.
+#
+# This bag has 1 enchanted book, 1 ghast tear, 2 diamond blocks and other items.
+#
+# When players open the bag, they get exactly 1 item from the bag (e.g. 1 Dblock).
+# This means that players are more likely to get a diamond block than a ghast tear.
+#
+items:
+    - ==: org.bukkit.inventory.ItemStack
+      type: ENCHANTED_BOOK
+      amount: 1
+      meta:
+        ==: ItemMeta
+        meta-type: ENCHANTED
+        stored-enchants:
+          DAMAGE_ALL: 4
+
+    - ==: org.bukkit.inventory.ItemStack
+      type: GHAST_TEAR
+      amount: 1
+
+    - ==: org.bukkit.inventory.ItemStack
+      type: NETHER_STAR
+      amount: 1
+
+    - ==: org.bukkit.inventory.ItemStack
+      type: DIAMOND_BLOCK
+      amount: 2
+
+    - ==: org.bukkit.inventory.ItemStack
+      type: ENDER_PEARL
+      amount: 2
+
+    - ==: org.bukkit.inventory.ItemStack
+      type: DIAMOND_BOOTS
+      meta:
+        ==: ItemMeta
+        meta-type: UNSPECIFIC
+        enchants:
+          PROTECTION_FALL: 3
+
+    - ==: org.bukkit.inventory.ItemStack
+      type: DIAMOND_CHESTPLATE
+      meta:
+        ==: ItemMeta
+        meta-type: UNSPECIFIC
+        enchants:
+          PROTECTION_EXPLOSIONS: 3
+
+    - ==: org.bukkit.inventory.ItemStack
+      type: DIAMOND_LEGGINGS
+      meta:
+        ==: ItemMeta
+        meta-type: UNSPECIFIC
+        enchants:
+          PROTECTION_ENVIRONMENTAL: 3
+
+    - ==: org.bukkit.inventory.ItemStack
+      type: DIAMOND_HELMET
+      meta:
+        ==: ItemMeta
+        meta-type: UNSPECIFIC
+        enchants:
+          OXYGEN: 3

@@ -1,0 +1,106 @@
+#
+# CheezBags config file
+#
+
+#
+# General settings:
+#
+
+# Will a random bag drop from mobs, set to yes/no
+# Not just limited to hostiles
+drop-from-mobs: yes
+
+# Does a player have to kill a mob to have a chance at a bag?
+require-player-kill: yeah
+
+#
+# Looting Sensitive
+# If true, then the drop chance for each bag will increase for
+# every level of the looting enchantment. That is, if players are
+# using a looting sword, they have higher chances of getting bags.
+#
+looting-sensitive: no
+
+#
+# Looting Chance Increase
+# Only effective if looting-sensitive is true - the drop rate will
+# be boosted by this amount for every level of looting.
+looting-effectiveness: 0.05
+
+#
+# Looting-Increases-Amount
+# If true, then Looting will have a chance to increase the amount of
+# bags dropped when a player gets one.
+looting-increases-amount: no
+
+# A list of WorldGuard regions to limit the drops.
+# This is useful if you want bags to drop only in spawn, for example.
+# You must have WorldGuard installed for this to work (duh).
+# Bags will attempt to drop everywhere if this is empty ('[]').
+drop-limit-to-area: []
+
+#
+# Limit drops to particular worlds.
+# If this is not empty ('[]'), bags will only drop on those worlds.
+# Otherwise bags will attempt to drop in all worlds.
+drop-limit-to-world: []
+
+#
+# Message to tell players what they got
+# %ITEMNAME% - name of item, or item material if unnamed
+# %ITEM% - item material
+# %BAG% - display name of the bag item, or the bag id if the item doesn't have a name
+open-message: 'The bag contained %ITEMNAME%!'
+
+#
+# Opening Spy Message
+# If true, server ops will get a message whenever a user opens a bag.
+openingspymessage: sure
+
+#
+# Announce Rare Loot
+# If true, the announce-rare-loot-message will broadcast every time
+# a player gets a reward from the rare-items list.
+announce-rare-loot: indubitably
+
+#
+# Rare Loot Firework
+# If true, a firework will launch at the player's location upon
+# getting rare loot.
+rare-loot-firework: k
+
+#
+# Rare Loot Sound
+# If true, the "wither spawn" sound will play for everyone
+# if a player gets rare loot.
+rare-loot-sound: true
+
+#
+# %PLAYER% - name of Player
+# %ITEMNAME% - name of item, or item material if unnamed
+# %ITEM% - item material
+# %BAG% - display name of the bag item, or the bag id if the item doesn't have a name
+announce-rare-loot-message: '%PLAYER% got lucky and received %ITEMNAME% from a &e%BAG%&6!'
+
+#
+# Whether or not to keep track of how many of each bag each player
+# has opened. Data will be written to output.yml
+log-bags: no
+
+#
+# Whether or not to keep track of rare loot players get.
+# Data will be written to output.yml
+log-rare-loot: no
+
+#
+# Items listed here are considered rare loot. These only affect the rare loot message.
+# Format:
+#   ITEM:
+#     - 'If this list isn't empty,'
+#     - 'the item is only rare if item name'
+#     - 'is contained within this list.'
+#     - 'Use & for color codes.'
+## This item is always rare no matter the name:
+#   OTHER_ITEM: []
+rare-loot:
+  DIAMOND: []

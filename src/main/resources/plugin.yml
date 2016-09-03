@@ -1,0 +1,19 @@
+name: MysteryBags
+main: cheezbags.MysteryBags
+author: Explodncheez
+description: Random bags that drop from mobs!
+version: 1.0
+softdepend: [WorldGuard, WorldEdit]
+
+commands:
+  mysterybags:
+    usage: /mysterybags
+    aliases: [mbag, mbags, mysterybag]
+    default: op
+
+permissions:
+  mysterybags:
+    admin:
+      default: op
+    open:
+      default: true
