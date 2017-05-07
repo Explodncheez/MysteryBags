@@ -15,6 +15,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import cheezbags.listener.MysteryBagsListener;
@@ -139,7 +140,10 @@ public class MysteryBags extends JavaPlugin {
 	}
 	
 	public static boolean isRare(ItemStack loot) {
-		return instance.rares.containsKey(loot.getType()) && (instance.rares.get(loot.getType()).isEmpty() || instance.rares.get(loot.getType()).contains(loot.getItemMeta().getDisplayName().replace("§", "&")));
+		String nameToCheck = loot.getItemMeta().hasDisplayName() ? loot.getItemMeta().getDisplayName().replace("§", "&") : null;
+		if (nameToCheck != null)
+			nameToCheck = nameToCheck.contains(" statistic_item_amount ") ? nameToCheck.split(" statistic_item_amount ")[0] : nameToCheck;
+		return instance.rares.containsKey(loot.getType()) && (instance.rares.get(loot.getType()).isEmpty() || instance.rares.get(loot.getType()).contains(nameToCheck));
 	}
 	
 	public static String getRareLootMessage(Player p, ItemStack loot) {
@@ -147,7 +151,16 @@ public class MysteryBags extends JavaPlugin {
 	}
 	
 	public static String getOpenMessage(ItemStack loot) {
-		return instance.openMessage.replace("%ITEM%", capitalizeFirst(loot.getType().toString())).replace("%ITEMNAME%", loot.getItemMeta().getDisplayName() == null ? capitalizeFirst(loot.getType().toString()) : loot.getItemMeta().getDisplayName());
+		if (loot == null)
+			return instance.openMessage;
+		return instance.openMessage.replace("%ITEM%", capitalizeFirst(loot.getType().toString())).replace("%ITEMNAME%", loot.getItemMeta().getDisplayName() == null ? (isCommandBook(loot) ? "magic" : capitalizeFirst(loot.getType().toString())) : loot.getItemMeta().getDisplayName());
+	}
+	
+	public static boolean isCommandBook(ItemStack item) {
+		if (item == null || item.getType() != Material.WRITTEN_BOOK)
+			return false;
+		ItemMeta meta = item.getItemMeta();
+		return meta.hasLore() && meta.getLore().get(0).equals("§e§lRun Command:§j§j§j");
 	}
 	
 	public static String capitalizeFirst(String s) {

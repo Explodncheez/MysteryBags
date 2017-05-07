@@ -14,6 +14,7 @@ import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Builder;
 import org.bukkit.FireworkEffect.Type;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
@@ -31,13 +32,15 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import cheezbags.events.MysteryBagOpenEvent;
+import net.md_5.bungee.api.ChatColor;
 
 public class MysteryBag {
 	
 	public MysteryBag(String name, YamlConfiguration config) {
 		this(name, config.getString("material"), config.getString("displayname"), config.getStringList("openmsg"), false);
-
-		this.enabled = config.getBoolean("enabled");
+		
+		this.enabled = ConfigReader.getBoolean(config.getString("enabled"));
+		this.giveAll = ConfigReader.getBoolean(config.getString("give-all-items"));
 		
 		for (String s : config.getStringList("limit-mob")) {
 			try {
@@ -128,6 +131,7 @@ public class MysteryBag {
 			YamlConfiguration config = new YamlConfiguration();
 			config.set("enabled", false);
 			config.set("material", item.getType() + ":" + item.getDurability());
+			config.set("give-all-items", false);
 			config.set("displayname", item.getItemMeta().getDisplayName().replace("§", "&"));
 			config.set("openmsg", this.openmsg);
 			config.set("limit-mob", new ArrayList<EntityType>(limitMobs));
@@ -146,7 +150,7 @@ public class MysteryBag {
 		}
 	}
 	
-	private boolean enabled;
+	private boolean enabled, giveAll;
 	
 	private ItemStack item;
 	private String id;
@@ -191,7 +195,21 @@ public class MysteryBag {
 	private void loadRaw() {
 		for (ItemStack item : rawContents) {
 			ItemStack clone = item.clone();
-			clone.setAmount(1);
+			ItemMeta meta = clone.getItemMeta();
+			if (meta.getLore() != null && meta.getLore().get(0).startsWith("§c§lAMOUNT: §f")) {
+				String amount = ChatColor.stripColor(meta.getLore().get(0)).split(" ")[1];
+				List<String> lore = meta.getLore();
+				lore.remove(0);
+				meta.setLore(lore);
+
+				if (amount.contains("-")) {
+					meta.setDisplayName((meta.hasDisplayName() ? meta.getDisplayName() : "§j") + " statistic_item_amount " + amount);
+				} else {
+					clone.setAmount(Integer.parseInt(amount));
+				}
+				clone.setItemMeta(meta);
+			} else
+				clone.setAmount(1);
 			for (int c = 0; c < item.getAmount(); c++) {
 				this.contents.add(clone);
 			}
@@ -243,12 +261,11 @@ public class MysteryBag {
 	 * @param hand important to tell which hand held the bag. If null, no item will be removed.
 	 */
 	public void open(Player p, Hand hand) {
-		MysteryBagOpenEvent event = new MysteryBagOpenEvent(p, hand, this, contents.get(random(contents.size() - 1)), random() < failurechance, true);
+		MysteryBagOpenEvent event = new MysteryBagOpenEvent(p, hand, this, contents.get(random(contents.size() - 1)).clone(), random() < failurechance, true);
 		MysteryBags.instance().getServer().getPluginManager().callEvent(event);
 		if (event.isCancelled()) return;
 		
 		ItemStack item;
-		
 		if (hand != null && event.getConsumeItem())
 			switch (hand) {
 			case MAIN:
@@ -267,56 +284,88 @@ public class MysteryBag {
 				break;
 			}
 		
-		ItemStack loot = event.getLoot();
-		if (event.getFailed()) {
-			p.addPotionEffect(new PotionEffect(bpe[random(bpe.length - 1)], 160, 1));
-			p.playSound(p.getLocation(), Sound.BLOCK_GLASS_BREAK, 1.0F, 1.0F);
-			if (!failureLines.isEmpty())
-				p.sendMessage(failureLines.get(random(failureLines.size() - 1)));
-			MysteryBags.log(p, this, null, false);
-			return;
-		}
-		
-		boolean rare = MysteryBags.isRare(loot);
-		if (rare) {
-			String s = MysteryBags.PREFIX +  MysteryBags.getRareLootMessage(p, loot).replace("%BAG%", this.item.getItemMeta().hasDisplayName() ? this.item.getItemMeta().getDisplayName() : id);
-			if (MysteryBags.instance().announceRare)
-				for (Player player : Bukkit.getOnlinePlayers()) {
-					player.sendMessage(s);
-					if (MysteryBags.instance().rareSound)
-						player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SPAWN, 0.7F, 1.5F);
-				}
-			if (MysteryBags.instance().rareFirework) {
-				final Firework fw = (Firework) p.getWorld().spawnEntity(p.getLocation(), EntityType.FIREWORK);
-				FireworkMeta meta = fw.getFireworkMeta();
-				Builder builder = FireworkEffect.builder();
-				builder.flicker(true);
-				builder.with(Type.BALL_LARGE);
-				builder.trail(true);
-				builder.withColor(Color.fromRGB(255, 255, 1));
-				builder.withColor(Color.WHITE);
-				builder.withFade(Color.ORANGE);
-				meta.addEffect(builder.build());
-				fw.setFireworkMeta(meta);
-				
-				new BukkitRunnable() {
-					public void run() {
-						fw.detonate();
+		if (!giveAll) {
+			ItemStack loot = event.getLoot();
+			if (event.getFailed()) {
+				p.addPotionEffect(new PotionEffect(bpe[random(bpe.length - 1)], 160, 1));
+				p.playSound(p.getLocation(), Sound.BLOCK_GLASS_BREAK, 1.0F, 1.0F);
+				if (!failureLines.isEmpty())
+					p.sendMessage(failureLines.get(random(failureLines.size() - 1)));
+				MysteryBags.log(p, this, null, false);
+				return;
+			}
+			
+			boolean rare = MysteryBags.isRare(loot);
+			if (rare) {
+				String s = MysteryBags.PREFIX +  MysteryBags.getRareLootMessage(p, loot).replace("%BAG%", this.item.getItemMeta().hasDisplayName() ? this.item.getItemMeta().getDisplayName() : id);
+				if (MysteryBags.instance().announceRare)
+					for (Player player : Bukkit.getOnlinePlayers()) {
+						player.sendMessage(s);
+						if (MysteryBags.instance().rareSound)
+							player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SPAWN, 0.7F, 1.5F);
 					}
-				}.runTaskLater(MysteryBags.instance(), 2L);
+				if (MysteryBags.instance().rareFirework) {
+					final Firework fw = (Firework) p.getWorld().spawnEntity(p.getLocation(), EntityType.FIREWORK);
+					FireworkMeta meta = fw.getFireworkMeta();
+					Builder builder = FireworkEffect.builder();
+					builder.flicker(true);
+					builder.with(Type.BALL_LARGE);
+					builder.trail(true);
+					builder.withColor(Color.fromRGB(255, 255, 1));
+					builder.withColor(Color.WHITE);
+					builder.withFade(Color.ORANGE);
+					meta.addEffect(builder.build());
+					fw.setFireworkMeta(meta);
+					
+					new BukkitRunnable() {
+						public void run() {
+							fw.detonate();
+						}
+					}.runTaskLater(MysteryBags.instance(), 2L);
+				}
+			}
+			giveLoot(p, loot);
+			MysteryBags.log(p, this, loot, rare);
+			p.sendMessage(MysteryBags.getOpenMessage(loot).replace("%BAG%", this.item.getItemMeta().hasDisplayName() ? this.item.getItemMeta().getDisplayName() : id));
+			
+			if (MysteryBags.instance().spyMessage) {
+				String message = MysteryBags.PREFIX + "§6" + p.getName() + " §7opened a(n) §e" + id + " §7and got §e" + (loot.getAmount() > 1 ? loot.getAmount() + " x " : "") + loot.getType() + (loot.getItemMeta().getDisplayName() == null ? "" : " §7called §6" + loot.getItemMeta().getDisplayName()) + "§7!";
+				for (OfflinePlayer op : Bukkit.getOperators())
+					if (op.isOnline() && !op.getPlayer().equals(p))
+						op.getPlayer().sendMessage(message);
+			}
+		} else {
+			for (ItemStack i : contents) {
+				giveLoot(p, i);
 			}
 		}
-		MysteryBags.log(p, this, loot, rare);
-		MysteryBags.giveItem(p, loot);
-		p.sendMessage(MysteryBags.getOpenMessage(loot).replace("%BAG%", this.item.getItemMeta().hasDisplayName() ? this.item.getItemMeta().getDisplayName() : id));
 		p.getWorld().playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, 0.8F, 0.7F);
+	}
 	
-		if (MysteryBags.instance().spyMessage) {
-			String message = MysteryBags.PREFIX + p.getName() + " opened a(n) " + id + " and got " + loot.getType() + (loot.getItemMeta().getDisplayName() == null ? "" : " called " + loot.getItemMeta().getDisplayName()) + "!";
-			for (OfflinePlayer op : Bukkit.getOperators())
-				if (op.isOnline() && !op.getPlayer().equals(p))
-					op.getPlayer().sendMessage(message);
+	private void giveLoot(Player p, ItemStack loot) {
+		if (loot.getType() == Material.WRITTEN_BOOK) {
+			List<String> lore = loot.getItemMeta().getLore();
+			if (lore != null && lore.get(0).equals("§e§lRun Command:§j§j§j")) {
+				for (int i = 1; i < lore.size(); i++) {
+					String command = lore.get(i).substring(3);
+					Location loc = p.getLocation();
+					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command.replace("%P%", p.getName()).replace("%W%", loc.getWorld().getName()).replace("%X%", "" + loc.getX()).replace("%Y%", "" + loc.getY()).replace("%Z", "" + loc.getZ()));
+				}
+				return;
+			}
 		}
+		if (loot.getItemMeta().hasDisplayName() && loot.getItemMeta().getDisplayName().contains(" statistic_item_amount ")) {
+			String[] thingy = loot.getItemMeta().getDisplayName().split(" statistic_item_amount ");
+			String[] split = thingy[1].split("-");
+			int min = Integer.parseInt(split[0]);
+			int amount = min + random(Integer.parseInt(split[1]) - min);
+			loot.setAmount(amount);
+			
+			ItemMeta meta = loot.getItemMeta();
+			meta.setDisplayName(thingy[0].equals("§j") ? null : thingy[0]);
+			loot.setItemMeta(meta);
+		}
+		MysteryBags.giveItem(p, loot);
 	}
 
 }

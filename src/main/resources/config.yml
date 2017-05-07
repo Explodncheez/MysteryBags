@@ -13,6 +13,9 @@ drop-from-mobs: yes
 # Does a player have to kill a mob to have a chance at a bag?
 require-player-kill: yeah
 
+# Will opening the bag give all items inside it?
+give-all-items: no
+
 #
 # Looting Sensitive
 # If true, then the drop chance for each bag will increase for

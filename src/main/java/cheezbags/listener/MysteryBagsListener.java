@@ -53,7 +53,7 @@ public class MysteryBagsListener implements Listener {
 		if (!instance.limitWorlds.isEmpty() && !instance.limitWorlds.contains(entity.getWorld().getName()))
 			return;
 		
-		if (!instance.limitRegions.isEmpty() && a(entity.getLocation(), instance.limitRegions))
+		if (!instance.limitRegions.isEmpty() && !a(entity.getLocation(), instance.limitRegions))
 			return;
 		
 		int looting = p.getInventory().getItemInMainHand() == null ? 0 : p.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS);

@@ -2,18 +2,18 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>random</groupId>
   <artifactId>MysteryBags</artifactId>
-  <version>0.1</version>
-     <repositories>
-       <repository>
+  <version>1.2</version>
+     <pluginRepositories>
+       <pluginRepository>
            <id>bukkit-repo</id>
            <url>http://repo.bukkit.org/content/groups/public/</url>
-       </repository>
-   </repositories>
+       </pluginRepository>
+   </pluginRepositories>
       <dependencies>
        <dependency>
            <groupId>org.bukkit</groupId>
            <artifactId>spigot</artifactId>
-           <version>1.10</version>
+           <version>1.11</version>
            <type>jar</type>
            <scope>provided</scope>
        </dependency>
