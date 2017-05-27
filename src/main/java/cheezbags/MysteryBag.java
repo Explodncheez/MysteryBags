@@ -40,6 +40,7 @@ public class MysteryBag {
 		this(name, config.getString("material"), config.getString("displayname"), config.getStringList("openmsg"), false);
 		
 		this.enabled = ConfigReader.getBoolean(config.getString("enabled"));
+        this.alwaysRare = config.isSet("always-rare") ? ConfigReader.getBoolean(config.getString("always-rare")) : false;
 		this.giveAll = ConfigReader.getBoolean(config.getString("give-all-items"));
 		
 		for (String s : config.getStringList("limit-mob")) {
@@ -132,6 +133,7 @@ public class MysteryBag {
 			config.set("enabled", false);
 			config.set("material", item.getType() + ":" + item.getDurability());
 			config.set("give-all-items", false);
+            config.set("always-rare", false);
 			config.set("displayname", item.getItemMeta().getDisplayName().replace("§", "&"));
 			config.set("openmsg", this.openmsg);
 			config.set("limit-mob", new ArrayList<EntityType>(limitMobs));
@@ -150,7 +152,7 @@ public class MysteryBag {
 		}
 	}
 	
-	private boolean enabled, giveAll;
+	private boolean enabled, giveAll, alwaysRare;
 	
 	private ItemStack item;
 	private String id;
@@ -295,7 +297,7 @@ public class MysteryBag {
 				return;
 			}
 			
-			boolean rare = MysteryBags.isRare(loot);
+			boolean rare = alwaysRare || MysteryBags.isRare(loot);
 			if (rare) {
 				String s = MysteryBags.PREFIX +  MysteryBags.getRareLootMessage(p, loot).replace("%BAG%", this.item.getItemMeta().hasDisplayName() ? this.item.getItemMeta().getDisplayName() : id);
 				if (MysteryBags.instance().announceRare)
@@ -336,7 +338,7 @@ public class MysteryBag {
 			}
 		} else {
 			for (ItemStack i : contents) {
-				giveLoot(p, i);
+			    giveLoot(p, i.clone());
 			}
 		}
 		p.getWorld().playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, 0.8F, 0.7F);

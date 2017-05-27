@@ -147,7 +147,18 @@ public class MysteryBags extends JavaPlugin {
 	}
 	
 	public static String getRareLootMessage(Player p, ItemStack loot) {
-		return instance.rareLootMessage.replace("%PLAYER%", p.getName()).replace("%ITEM%", capitalizeFirst(loot.getType().toString())).replace("%ITEMNAME%", loot.getItemMeta().getDisplayName() == null ? capitalizeFirst(loot.getType().toString()) : loot.getItemMeta().getDisplayName());
+		return instance.rareLootMessage.replace("%PLAYER%", p.getName()).replace("%ITEM%", capitalizeFirst(loot.getType().toString())).replace("%ITEMNAME%", unnamed(loot) ? capitalizeFirst(loot.getType().toString()) : loot.getItemMeta().getDisplayName());
+	}
+	
+	private static boolean unnamed(ItemStack stack) {
+	    ItemMeta meta = stack.getItemMeta();
+	    if (!meta.hasDisplayName())
+	        return true;
+	    String[] split = meta.getDisplayName().split(" statistic_item_amount ");
+	    if (split.length > 1 && split[0].equals("§j")) {
+	        return true;
+	    }
+	    return false;
 	}
 	
 	public static String getOpenMessage(ItemStack loot) {

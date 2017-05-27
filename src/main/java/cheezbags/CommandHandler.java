@@ -79,7 +79,7 @@ public class CommandHandler implements CommandExecutor {
 						if (sender instanceof Player) {
 							Player p = (Player) sender;
 							if (args.length > 1) {
-								MysteryBag bag = MysteryBags.instance().cheezBags.get(args[1].toLowerCase());
+								MysteryBag bag = MysteryBags.instance().cheezBags.get(args[1]);
 								if (bag == null) {
 									p.sendMessage(MysteryBags.PREFIX + "§7That bag does not exist.");
 									return true;
