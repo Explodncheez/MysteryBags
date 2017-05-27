@@ -23,6 +23,12 @@ openmsg:
   - "&2Hold item and right click to open!"
 
 #
+# Whether to always announce drops from this bag
+# as a "rare" item - sounds and fireworks included
+#
+always-rare: false
+
+#
 # Can only drop from these mobs.
 # Leave empty to drop from all mobs.
 limit-mob:
