@@ -1,14 +1,20 @@
 package cheezbags;
 
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
 
 public class ConfigReader {
 	
-	public static boolean getBoolean(String configPath) {
-	    if (!MysteryBags.getconfig().isSet(configPath))
+	public static boolean getBoolean(FileConfiguration config, String configPath) {
+	    if (!config.isSet(configPath)) {
 	        return false;
+	    }
 	    
-	    String data = MysteryBags.getconfig().getString(configPath);
+	    if (config.isBoolean(configPath)) {
+	        return config.getBoolean(configPath);
+	    }
+	    
+	    String data = config.getString(configPath);
 		switch (data.toLowerCase()) {
 		case "yes":
 		case "yeah":

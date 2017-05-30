@@ -28,6 +28,9 @@ openmsg:
 #
 always-rare: false
 
+# Will opening the bag give all items inside it?
+give-all-items: no
+
 #
 # Can only drop from these mobs.
 # Leave empty to drop from all mobs.

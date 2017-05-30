@@ -83,22 +83,22 @@ public class MysteryBags extends JavaPlugin {
 		reloadConfig();
 		config = getConfig();
 		
-		overrideDrops = ConfigReader.getBoolean("override-drops");
-		dropFromMobs = ConfigReader.getBoolean("drop-from-mobs");
-		requirePlayerKill = ConfigReader.getBoolean("require-player-kill");
-		lootingSensitiveChance = ConfigReader.getBoolean("looting-sensitive");
-		lootingSensitiveAmount = ConfigReader.getBoolean("looting-increases-amount");
+		overrideDrops = ConfigReader.getBoolean(config, "override-drops");
+		dropFromMobs = ConfigReader.getBoolean(config, "drop-from-mobs");
+		requirePlayerKill = ConfigReader.getBoolean(config, "require-player-kill");
+		lootingSensitiveChance = ConfigReader.getBoolean(config, "looting-sensitive");
+		lootingSensitiveAmount = ConfigReader.getBoolean(config, "looting-increases-amount");
 		lootingEffectiveness = config.getDouble("looting-effectiveness");
 		limitRegions = new HashSet<String>(config.getStringList("drop-limit-to-area"));
 		limitWorlds = new HashSet<String>(config.getStringList("drop-limit-to-world"));
 		openMessage = config.getString("open-message").replace("&", "§");
 		rareLootMessage = config.getString("announce-rare-loot-message").replace("&", "§");
-		spyMessage = ConfigReader.getBoolean("openingspymessage");
-		announceRare = ConfigReader.getBoolean("announce-rare-loot");
-		rareFirework = ConfigReader.getBoolean("rare-loot-firework");
-		rareSound = ConfigReader.getBoolean("rare-loot-sound");
-		logBags = ConfigReader.getBoolean("log-bags");
-		logRares = ConfigReader.getBoolean("log-rare-loot");
+		spyMessage = ConfigReader.getBoolean(config, "openingspymessage");
+		announceRare = ConfigReader.getBoolean(config, "announce-rare-loot");
+		rareFirework = ConfigReader.getBoolean(config, "rare-loot-firework");
+		rareSound = ConfigReader.getBoolean(config, "rare-loot-sound");
+		logBags = ConfigReader.getBoolean(config, "log-bags");
+		logRares = ConfigReader.getBoolean(config, "log-rare-loot");
 		
 		rares.clear();
 		for (String key : config.getConfigurationSection("rare-loot").getKeys(false)) {

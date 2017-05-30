@@ -43,19 +43,19 @@ public class MysteryBagsListener implements Listener {
 	public void onEntityKill(EntityDeathEvent e) {
 		if (!instance.dropFromMobs)
 			return;
-		
+
 		Player p = e.getEntity().getKiller();
 		LivingEntity entity = e.getEntity();
-		
+
 		if (p == null && instance.requirePlayerKill)
 			return;
-		
+
 		if (!instance.limitWorlds.isEmpty() && !instance.limitWorlds.contains(entity.getWorld().getName()))
 			return;
-		
+
 		if (!instance.limitRegions.isEmpty() && !a(entity.getLocation(), instance.limitRegions))
 			return;
-		
+
 		int looting = p.getInventory().getItemInMainHand() == null ? 0 : p.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS);
 		double lootExtraChance = instance.lootingEffectiveness * looting;
 		for (MysteryBag bag : instance.cheezBags.values()) {

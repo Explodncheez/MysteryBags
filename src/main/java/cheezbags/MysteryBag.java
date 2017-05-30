@@ -38,10 +38,10 @@ public class MysteryBag {
 	
 	public MysteryBag(String name, YamlConfiguration config) {
 		this(name, config.getString("material"), config.getString("displayname"), config.getStringList("openmsg"), false);
-		
-		this.enabled = ConfigReader.getBoolean("enabled");
-        this.alwaysRare = ConfigReader.getBoolean("always-rare");
-		this.giveAll = ConfigReader.getBoolean("give-all-items");
+
+		this.enabled = ConfigReader.getBoolean(config, "enabled");
+        this.alwaysRare = ConfigReader.getBoolean(config, "always-rare");
+		this.giveAll = ConfigReader.getBoolean(config, "give-all-items");
 		
 		for (String s : config.getStringList("limit-mob")) {
 			try {
@@ -255,7 +255,19 @@ public class MysteryBag {
 	 * @return true if both the chance check and the mob type checks pass.
 	 */
 	public boolean willDrop(EntityType type, double chanceIncrease) {
-		return enabled && (limitMobs.isEmpty() || limitMobs.contains(type)) && (dropChanceMobs.containsKey(type) ? random() < dropChanceMobs.get(type) : random() < dropChance + (MysteryBags.instance().lootingSensitiveChance ? chanceIncrease : 0));
+	    if (!enabled) {
+	        return false;
+	    }
+	    
+	    if (!limitMobs.isEmpty() && !limitMobs.contains(type)) {
+	        return false;
+	    }
+	    
+	    double mod = MysteryBags.instance().lootingSensitiveChance ? chanceIncrease : 0;
+	    double rng = random();
+		return dropChanceMobs.containsKey(type) ?
+		        rng < dropChanceMobs.get(type) + mod :
+		        rng < dropChance + mod;
 	}
 	
 	/**
@@ -320,7 +332,8 @@ public class MysteryBag {
 					fw.setFireworkMeta(meta);
 					
 					new BukkitRunnable() {
-						public void run() {
+						@Override
+                        public void run() {
 							fw.detonate();
 						}
 					}.runTaskLater(MysteryBags.instance(), 2L);
@@ -344,7 +357,7 @@ public class MysteryBag {
 		p.getWorld().playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, 0.8F, 0.7F);
 	}
 	
-	private void giveLoot(Player p, ItemStack loot) {
+	private static void giveLoot(Player p, ItemStack loot) {
 		if (loot.getType() == Material.WRITTEN_BOOK) {
 			List<String> lore = loot.getItemMeta().getLore();
 			if (lore != null && lore.get(0).equals("§e§lRun Command:§j§j§j")) {

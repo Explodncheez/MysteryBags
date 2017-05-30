@@ -2,7 +2,7 @@ name: MysteryBags
 main: cheezbags.MysteryBags
 author: Explodncheez
 description: Random bags that drop from mobs!
-version: 1.21
+version: 1.22
 softdepend: [WorldGuard, WorldEdit]
 
 commands:
