@@ -6,9 +6,17 @@
 # General settings:
 #
 
+# DONT CHANGE THIS!!!!
+version: 1
+
 # Will a random bag drop from mobs, set to yes/no
 # Not just limited to hostiles
 drop-from-mobs: yes
+
+# Should MysteryBags drop separately from the mob's normal?
+# Set this option to TRUE if you suspect a plugin conflict
+# is preventing bags from dropping!
+override-drops: no
 
 # Does a player have to kill a mob to have a chance at a bag?
 require-player-kill: yeah

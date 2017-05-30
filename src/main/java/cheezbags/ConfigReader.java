@@ -4,7 +4,11 @@ import org.bukkit.entity.EntityType;
 
 public class ConfigReader {
 	
-	public static boolean getBoolean(String data) {
+	public static boolean getBoolean(String configPath) {
+	    if (!MysteryBags.getconfig().isSet(configPath))
+	        return false;
+	    
+	    String data = MysteryBags.getconfig().getString(configPath);
 		switch (data.toLowerCase()) {
 		case "yes":
 		case "yeah":

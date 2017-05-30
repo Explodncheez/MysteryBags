@@ -27,7 +27,7 @@ public class MysteryBags extends JavaPlugin {
 	private static MysteryBags instance;
 	public static String VERSION;
 	
-	public boolean dropFromMobs, requirePlayerKill, lootingSensitiveChance, lootingSensitiveAmount, spyMessage, announceRare, rareSound, rareFirework, logBags, logRares, worldguard;
+	public boolean overrideDrops, dropFromMobs, requirePlayerKill, lootingSensitiveChance, lootingSensitiveAmount, spyMessage, announceRare, rareSound, rareFirework, logBags, logRares, worldguard;
 	public double lootingEffectiveness;
 	
 	public Set<String> limitRegions, limitWorlds;
@@ -37,7 +37,7 @@ public class MysteryBags extends JavaPlugin {
 	public Random random;
 	
 	private YamlConfiguration output;
-	private FileConfiguration config;
+	private static FileConfiguration config;
 	public Map<String, MysteryBag> cheezBags = new HashMap<String, MysteryBag>();
 	
 	public Set<String> acceptableCommands = new HashSet<String>();
@@ -62,8 +62,7 @@ public class MysteryBags extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new MysteryBagsListener(this), this);
 		
 		instance = this;
-		saveDefaultConfig();
-		config = getConfig();
+		config();
 		random = new Random();
 		
 		if (!new File(getDataFolder(), "output.yml").exists())
@@ -75,25 +74,31 @@ public class MysteryBags extends JavaPlugin {
 		load();
 	}
 	
+	private void config() {
+        this.saveDefaultConfig();
+        config = getConfig();
+	}
+	
 	public void load() {
 		reloadConfig();
 		config = getConfig();
 		
-		dropFromMobs = ConfigReader.getBoolean(config.getString("drop-from-mobs"));
-		requirePlayerKill = ConfigReader.getBoolean(config.getString("require-player-kill"));
-		lootingSensitiveChance = ConfigReader.getBoolean(config.getString("looting-sensitive"));
-		lootingSensitiveAmount = ConfigReader.getBoolean(config.getString("looting-increases-amount"));
+		overrideDrops = ConfigReader.getBoolean("override-drops");
+		dropFromMobs = ConfigReader.getBoolean("drop-from-mobs");
+		requirePlayerKill = ConfigReader.getBoolean("require-player-kill");
+		lootingSensitiveChance = ConfigReader.getBoolean("looting-sensitive");
+		lootingSensitiveAmount = ConfigReader.getBoolean("looting-increases-amount");
 		lootingEffectiveness = config.getDouble("looting-effectiveness");
 		limitRegions = new HashSet<String>(config.getStringList("drop-limit-to-area"));
 		limitWorlds = new HashSet<String>(config.getStringList("drop-limit-to-world"));
 		openMessage = config.getString("open-message").replace("&", "§");
 		rareLootMessage = config.getString("announce-rare-loot-message").replace("&", "§");
-		spyMessage = ConfigReader.getBoolean(config.getString("openingspymessage"));
-		announceRare = ConfigReader.getBoolean(config.getString("announce-rare-loot"));
-		rareFirework = ConfigReader.getBoolean(config.getString("rare-loot-firework"));
-		rareSound = ConfigReader.getBoolean(config.getString("rare-loot-sound"));
-		logBags = ConfigReader.getBoolean(config.getString("log-bags"));
-		logRares = ConfigReader.getBoolean(config.getString("log-rare-loot"));
+		spyMessage = ConfigReader.getBoolean("openingspymessage");
+		announceRare = ConfigReader.getBoolean("announce-rare-loot");
+		rareFirework = ConfigReader.getBoolean("rare-loot-firework");
+		rareSound = ConfigReader.getBoolean("rare-loot-sound");
+		logBags = ConfigReader.getBoolean("log-bags");
+		logRares = ConfigReader.getBoolean("log-rare-loot");
 		
 		rares.clear();
 		for (String key : config.getConfigurationSection("rare-loot").getKeys(false)) {
@@ -133,6 +138,10 @@ public class MysteryBags extends JavaPlugin {
 	
 	public static MysteryBags instance() {
 		return instance;
+	}
+	
+	public static FileConfiguration getconfig() {
+	    return config;
 	}
 	
 	public static void throwError(String s) {

@@ -39,9 +39,9 @@ public class MysteryBag {
 	public MysteryBag(String name, YamlConfiguration config) {
 		this(name, config.getString("material"), config.getString("displayname"), config.getStringList("openmsg"), false);
 		
-		this.enabled = ConfigReader.getBoolean(config.getString("enabled"));
-        this.alwaysRare = config.isSet("always-rare") ? ConfigReader.getBoolean(config.getString("always-rare")) : false;
-		this.giveAll = ConfigReader.getBoolean(config.getString("give-all-items"));
+		this.enabled = ConfigReader.getBoolean("enabled");
+        this.alwaysRare = ConfigReader.getBoolean("always-rare");
+		this.giveAll = ConfigReader.getBoolean("give-all-items");
 		
 		for (String s : config.getStringList("limit-mob")) {
 			try {

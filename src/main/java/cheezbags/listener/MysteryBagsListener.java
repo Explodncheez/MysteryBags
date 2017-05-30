@@ -69,7 +69,11 @@ public class MysteryBagsListener implements Listener {
 				if (instance.lootingSensitiveAmount) {
 					drop.setAmount(drop.getAmount() * (1 + instance.random.nextInt(looting + 1)));
 				}
-				e.getDrops().add(drop);
+				if (MysteryBags.instance().overrideDrops) {
+				    entity.getWorld().dropItem(entity.getLocation(), drop);
+				} else {
+				    e.getDrops().add(drop);
+				}
 			}
 		}
 	}
