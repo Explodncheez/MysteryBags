@@ -283,7 +283,7 @@ public class CommandHandler implements CommandExecutor {
 							try {
 								boolean b;
 								ItemMeta meta = item.getItemMeta();
-								meta.spigot().setUnbreakable(b = !meta.spigot().isUnbreakable());
+								meta.setUnbreakable(b = !meta.isUnbreakable());
 								item.setItemMeta(meta);
 								p.sendMessage(MysteryBags.PREFIX + "§aToggled unbreakability of item to: §e" + b + "§a!");
 							} catch (Exception e) {
