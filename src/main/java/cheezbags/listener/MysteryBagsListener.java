@@ -134,7 +134,7 @@ public class MysteryBagsListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void inventoryDragEvent(InventoryDragEvent e) {
-        if (e.getInventory() == null || e.getView().getBottomInventory().equals(e.getInventory()))
+        if (e.getInventory() == null)
             return;
         
         if (check(e.getInventory().getType(), e.getOldCursor()))
