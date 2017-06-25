@@ -7,17 +7,19 @@ import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Furnace;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.FurnaceSmeltEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -26,9 +28,9 @@ import org.bukkit.inventory.PlayerInventory;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
+import cheezbags.Hand;
 import cheezbags.MysteryBag;
 import cheezbags.MysteryBags;
-import cheezbags.Hand;
 import cheezbags.events.MysteryBagDropEvent;
 
 public class MysteryBagsListener implements Listener {
@@ -102,8 +104,8 @@ public class MysteryBagsListener implements Listener {
 			}
 		}
 	}
-	
-	@EventHandler
+
+    @EventHandler(priority = EventPriority.MONITOR)
 	public void onCraftItem(CraftItemEvent e) {
 		boolean playerInv = e.getClickedInventory() instanceof PlayerInventory;
 		Player p = (Player) e.getWhoClicked();
@@ -119,21 +121,46 @@ public class MysteryBagsListener implements Listener {
 		}
 	}
 	
-	@EventHandler
-	public void onFurnaceSmelt(FurnaceSmeltEvent e) {
-		if (b(e.getSource()) || b(((Furnace) e.getBlock().getState()).getInventory().getFuel()))
-			e.setCancelled(true);
-	}
-	
-	@EventHandler
-	public void onPotionBrew(BrewEvent e) {
-		for (ItemStack item : e.getContents().getContents()) {
-			if (b(item)) {
-				e.setCancelled(true);
-				break;
-			}
-		}
-	}
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void inventoryClickEvent(InventoryClickEvent event) {
+        if (event.getClickedInventory() == null || event.getClickedInventory().equals(event.getView().getBottomInventory()) && !event.getClick().isShiftClick() && !event.getClick().isKeyboardClick())
+            return;
+            
+        ItemStack item = event.getClickedInventory().equals(event.getView().getTopInventory()) && !event.getClick().isKeyboardClick() ? event.getCursor() : event.getCurrentItem();
+        if (check(event.getInventory().getType(), item))
+            event.setCancelled(true);
+
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void inventoryDragEvent(InventoryDragEvent e) {
+        if (e.getInventory() == null || e.getView().getBottomInventory().equals(e.getInventory()))
+            return;
+        
+        if (check(e.getInventory().getType(), e.getOldCursor()))
+            e.setCancelled(true);
+    }
+    
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void inventoryMove(InventoryMoveItemEvent e) {
+        if (check(e.getDestination().getType(), e.getItem()))
+            e.setCancelled(true);
+    }
+    
+    private static boolean check(InventoryType type, ItemStack item) {
+           switch (type) {
+           case WORKBENCH:
+           case CRAFTING:
+           case BEACON:
+           case BREWING:
+           case ENCHANTING:
+           case FURNACE:
+           case MERCHANT:
+               return b(item);
+           default:
+               return false;
+       }
+    }
 	
 	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent e) {
