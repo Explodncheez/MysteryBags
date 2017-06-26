@@ -34,39 +34,39 @@ public class MysteryBagOpenEvent extends Event implements Cancellable {
     }
     
     public ItemStack getLoot() {
-    	return loot;
+        return loot;
     }
     
     public void setLoot(ItemStack newloot) {
-    	loot = newloot;
+        loot = newloot;
     }
     
     public boolean getConsumeItem() {
-    	return c;
+        return c;
     }
     
     public void setConsumeItem(boolean b) {
-    	c = b;
+        c = b;
     }
     
     public boolean getFailed() {
-    	return failed;
+        return failed;
     }
     
     public void setFailed(boolean b) {
-    	failed = b;
+        failed = b;
     }
  
     public Player getPlayer() {
-    	return player;
+        return player;
     }
     
     public MysteryBag getBag() {
-    	return bag;
+        return bag;
     }
     
     public Hand getHand() {
-    	return hand;
+        return hand;
     }
     
     public boolean isCancelled() {

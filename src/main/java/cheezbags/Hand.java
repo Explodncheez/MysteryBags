@@ -1,6 +1,6 @@
 package cheezbags;
 
 public enum Hand {
-	MAIN,
-	OFF
+    MAIN,
+    OFF
 }

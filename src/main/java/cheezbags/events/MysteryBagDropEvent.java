@@ -22,19 +22,19 @@ public class MysteryBagDropEvent extends Event implements Cancellable {
     }
  
     public Player getPlayer() {
-    	return player;
+        return player;
     }
     
     public Entity getKilledEntity() {
-    	return killed;
+        return killed;
     }
     
     public ItemStack getItem() {
-    	return bag;
+        return bag;
     }
     
     public void setItem(ItemStack item) {
-    	bag = item;
+        bag = item;
     }
     
     public boolean isCancelled() {
