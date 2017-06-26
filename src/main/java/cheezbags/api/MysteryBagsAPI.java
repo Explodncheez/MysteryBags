@@ -1,7 +1,9 @@
 package cheezbags.api;
 
 import java.io.File;
+import java.util.List;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import cheezbags.MysteryBag;
@@ -23,6 +25,23 @@ public class MysteryBagsAPI {
      */
     public static ItemStack getBagItem(String id) {
         return getBagById(id).getBagItem();
+    }
+    
+    /**
+     * @param stack the ItemStack to check.
+     * @return Whether or not the ItemStack is a Mystery Bag.
+     */
+    public static boolean isMysteryBag(ItemStack stack) {
+        if (stack == null || stack.getType() == Material.AIR)
+            return false;
+        
+        List<String> lore = stack.getItemMeta().getLore();
+        if (lore != null && lore.size() > 0) {
+            String id = lore.get(0).replace("§", "");
+            MysteryBag bag = MysteryBags.instance().cheezBags.get(id);
+            return bag != null;
+        }
+        return false;
     }
     
     /**

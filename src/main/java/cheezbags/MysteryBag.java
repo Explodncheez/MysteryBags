@@ -19,6 +19,8 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
@@ -42,6 +44,14 @@ public class MysteryBag {
         this.enabled = ConfigReader.getBoolean(config, "enabled");
         this.alwaysRare = ConfigReader.getBoolean(config, "always-rare");
         this.giveAll = ConfigReader.getBoolean(config, "give-all-items");
+        
+        if (config.isSet("allow-spawner-drop")) {
+            this.allowSpawners = ConfigReader.getBoolean(config, "allow-spawner-drop");
+        }
+        
+        if (config.isSet("allow-baby-drop")) {
+            this.allowBaby = ConfigReader.getBoolean(config, "allow-baby-drop");
+        }
         
         for (String s : config.getStringList("limit-mob")) {
             try {
@@ -157,6 +167,7 @@ public class MysteryBag {
     private ItemStack item;
     private String id;
     private double dropChance, failurechance;
+    private Boolean allowBaby, allowSpawners;
     
     private Set<EntityType> limitMobs = new HashSet<EntityType>();
     private Map<EntityType, Double> dropChanceMobs = new HashMap<EntityType, Double>();
@@ -254,12 +265,22 @@ public class MysteryBag {
     /**
      * @return true if both the chance check and the mob type checks pass.
      */
-    public boolean willDrop(EntityType type, double chanceIncrease) {
+    public boolean willDrop(Entity entity, double chanceIncrease) {
         if (!enabled) {
             return false;
         }
-        
+
+        EntityType type = entity.getType();
         if (!limitMobs.isEmpty() && !limitMobs.contains(type)) {
+            return false;
+        }
+        
+        // global check happens before this
+        if (entity.hasMetadata("isSpawnerMob") && allowSpawners != null && !allowSpawners) {
+            return false;
+        }
+        
+        if (entity instanceof Animals && !((Animals) entity).isAdult() && allowBaby != null && !allowBaby) {
             return false;
         }
         

@@ -31,6 +31,15 @@ always-rare: false
 # Will opening the bag give all items inside it?
 give-all-items: no
 
+# Can mobs from spawners drop Mystery Bags?
+# This value will override the global value.
+allow-spawner-drop: no
+
+# Can baby animals drop Mystery Bags?
+# Does not apply to zombies.
+# This value will override the global value.
+allow-baby-drop: no
+
 #
 # Can only drop from these mobs.
 # Leave empty to drop from all mobs.

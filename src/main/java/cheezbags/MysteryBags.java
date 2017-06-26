@@ -27,7 +27,7 @@ public class MysteryBags extends JavaPlugin {
     private static MysteryBags instance;
     public static String VERSION;
     
-    public boolean overrideDrops, dropFromMobs, requirePlayerKill, lootingSensitiveChance, lootingSensitiveAmount, spyMessage, announceRare, rareSound, rareFirework, logBags, logRares, worldguard;
+    public boolean overrideDrops, dropFromMobs, requirePlayerKill, lootingSensitiveChance, lootingSensitiveAmount, spyMessage, announceRare, rareSound, rareFirework, logBags, logRares, worldguard, allowBaby, allowSpawners;
     public double lootingEffectiveness;
     
     public Set<String> limitRegions, limitWorlds;
@@ -99,6 +99,8 @@ public class MysteryBags extends JavaPlugin {
         rareSound = ConfigReader.getBoolean(config, "rare-loot-sound");
         logBags = ConfigReader.getBoolean(config, "log-bags");
         logRares = ConfigReader.getBoolean(config, "log-rare-loot");
+        allowSpawners = ConfigReader.getBoolean(config, "default-allow-spawner-drop");
+        allowBaby = ConfigReader.getBoolean(config, "default-allow-baby-drop");
         
         rares.clear();
         for (String key : config.getConfigurationSection("rare-loot").getKeys(false)) {

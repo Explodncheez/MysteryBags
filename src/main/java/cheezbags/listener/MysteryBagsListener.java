@@ -8,11 +8,14 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -24,6 +27,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -41,6 +45,12 @@ public class MysteryBagsListener implements Listener {
     
     private MysteryBags instance;
     
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEntitySpawn(CreatureSpawnEvent e) {
+        if (e.getSpawnReason() == SpawnReason.SPAWNER)
+            e.getEntity().setMetadata("isSpawnerMob", new FixedMetadataValue(instance, true));
+    }
+    
     @EventHandler
     public void onEntityKill(EntityDeathEvent e) {
         if (!instance.dropFromMobs)
@@ -50,6 +60,12 @@ public class MysteryBagsListener implements Listener {
         LivingEntity entity = e.getEntity();
 
         if (p == null && instance.requirePlayerKill)
+            return;
+        
+        if (entity instanceof Animals && !((Animals) entity).isAdult() && !instance.allowBaby)
+            return;
+        
+        if (entity.hasMetadata("isSpawnerMob") && !instance.allowSpawners)
             return;
 
         if (!instance.limitWorlds.isEmpty() && !instance.limitWorlds.contains(entity.getWorld().getName()))
@@ -61,7 +77,7 @@ public class MysteryBagsListener implements Listener {
         int looting = p.getInventory().getItemInMainHand() == null ? 0 : p.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS);
         double lootExtraChance = instance.lootingEffectiveness * looting;
         for (MysteryBag bag : instance.cheezBags.values()) {
-            if (bag.willDrop(entity.getType(), lootExtraChance)) {
+            if (bag.willDrop(entity, lootExtraChance)) {
                 MysteryBagDropEvent event = new MysteryBagDropEvent(p, entity, bag.getBagItem());
                 instance.getServer().getPluginManager().callEvent(event);
                 if (event.isCancelled())

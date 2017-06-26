@@ -21,6 +21,17 @@ override-drops: no
 # Does a player have to kill a mob to have a chance at a bag?
 require-player-kill: yeah
 
+# Can mobs from spawners drop Mystery Bags?
+# This is the default value and can be overridden in
+# in individual bag configs.
+default-allow-spawner-drop: no
+
+# Can baby animals drop Mystery Bags?
+# Does not apply to zombies.
+# This is the default value and can be overridden in
+# in individual bag configs.
+default-allow-baby-drop: no
+
 #
 # Looting Sensitive
 # If true, then the drop chance for each bag will increase for
