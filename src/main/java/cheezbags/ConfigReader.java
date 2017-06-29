@@ -45,7 +45,7 @@ public class ConfigReader {
                 return EntityType.WITHER;
             case "wither skeleton":
             case "witherskeleton":
-                return EntityType.SKELETON;
+                return EntityType.WITHER_SKELETON;
             case "cavespider":
                 return EntityType.CAVE_SPIDER;
             case "magmacube":
