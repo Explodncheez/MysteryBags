@@ -99,8 +99,8 @@ public class MysteryBags extends JavaPlugin {
         rareSound = ConfigReader.getBoolean(config, "rare-loot-sound");
         logBags = ConfigReader.getBoolean(config, "log-bags");
         logRares = ConfigReader.getBoolean(config, "log-rare-loot");
-        allowSpawners = ConfigReader.getBoolean(config, "default-allow-spawner-drop");
-        allowBaby = ConfigReader.getBoolean(config, "default-allow-baby-drop");
+        allowSpawners = config.isSet("default-allow-spawner-drop") ? ConfigReader.getBoolean(config, "default-allow-spawner-drop") : true;
+        allowBaby = config.isSet("default-allow-baby-drop") ? ConfigReader.getBoolean(config, "default-allow-baby-drop") : true;
         
         rares.clear();
         for (String key : config.getConfigurationSection("rare-loot").getKeys(false)) {
