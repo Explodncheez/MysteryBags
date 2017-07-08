@@ -167,7 +167,7 @@ public class MysteryBag {
     private ItemStack item;
     private String id;
     private double dropChance, failurechance;
-    private Boolean allowBaby, allowSpawners;
+    private Boolean allowBaby = null, allowSpawners = null;
     
     private Set<EntityType> limitMobs = new HashSet<EntityType>();
     private Map<EntityType, Double> dropChanceMobs = new HashMap<EntityType, Double>();
@@ -265,7 +265,7 @@ public class MysteryBag {
     /**
      * @return true if both the chance check and the mob type checks pass.
      */
-    public boolean willDrop(Entity entity, double chanceIncrease) {
+    public boolean willDrop(Entity entity, double chanceIncrease, boolean isBaby, boolean isSpawner) {
         if (!enabled) {
             return false;
         }
@@ -275,12 +275,11 @@ public class MysteryBag {
             return false;
         }
         
-        // global check happens before this
-        if (entity.hasMetadata("isSpawnerMob") && allowSpawners != null && !allowSpawners) {
+        if (isSpawner && (this.allowSpawners == null ? !MysteryBags.instance().allowSpawners : !this.allowSpawners)) {
             return false;
         }
-        
-        if (entity instanceof Animals && !((Animals) entity).isAdult() && allowBaby != null && !allowBaby) {
+
+        if (isBaby && (this.allowBaby == null ? !MysteryBags.instance().allowBaby : !this.allowBaby)) {
             return false;
         }
         

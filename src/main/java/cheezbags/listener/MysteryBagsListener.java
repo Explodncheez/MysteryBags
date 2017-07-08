@@ -61,23 +61,19 @@ public class MysteryBagsListener implements Listener {
 
         if (p == null && instance.requirePlayerKill)
             return;
-        
-        if (entity instanceof Animals && !((Animals) entity).isAdult() && !instance.allowBaby)
-            return;
-        
-        if (entity.hasMetadata("isSpawnerMob") && !instance.allowSpawners)
-            return;
 
         if (!instance.limitWorlds.isEmpty() && !instance.limitWorlds.contains(entity.getWorld().getName()))
             return;
 
         if (!instance.limitRegions.isEmpty() && !a(entity.getLocation(), instance.limitRegions))
             return;
-
+        
+        boolean isBaby = entity instanceof Animals && !((Animals) entity).isAdult();
+        boolean isSpawner = entity.hasMetadata("isSpawnerMob");
         int looting = p.getInventory().getItemInMainHand() == null ? 0 : p.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS);
         double lootExtraChance = instance.lootingEffectiveness * looting;
         for (MysteryBag bag : instance.cheezBags.values()) {
-            if (bag.willDrop(entity, lootExtraChance)) {
+            if (bag.willDrop(entity, lootExtraChance, isBaby, isSpawner)) {
                 MysteryBagDropEvent event = new MysteryBagDropEvent(p, entity, bag.getBagItem());
                 instance.getServer().getPluginManager().callEvent(event);
                 if (event.isCancelled())
