@@ -8,13 +8,17 @@ import org.bukkit.entity.Entity;
 
 public class PredicateMob {
     
-    public PredicateMob() {}
+    public PredicateMob() {
+        this.names = new HashSet<>();
+        this.meta = new HashSet<>();
+        this.notnames = new HashSet<>();
+        this.notmeta = new HashSet<>();
+    }
 
     private Set<String> names, meta;
     private Set<String> notnames, notmeta;
     
     public void setNames(String names) {
-        this.names = new HashSet<>();
         for (String name : names.split(",")) {
             if (!name.isEmpty()) {
                 if (name.startsWith("!")) {
@@ -27,7 +31,6 @@ public class PredicateMob {
     }
     
     public void setMeta(String metas) {
-        this.meta = new HashSet<>();
         for (String m : metas.split(",")) {
             if (!m.isEmpty()) {
                 if (m.startsWith("!")) {

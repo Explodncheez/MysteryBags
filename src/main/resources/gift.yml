@@ -44,7 +44,7 @@ allow-baby-drop: no
 # Can only drop from these mobs.
 # Leave empty to drop from all mobs.
 limit-mob:
-  - ZOMBIE
+  - ZOMBIE;Bob
 
 #
 # Can only drop in these worlds.
@@ -75,7 +75,7 @@ drop-chance: 0.05
 # Same as drop-chance, except defined per mob.
 # Values here override the drop-chance above.
 drop-chance-mobs:
-  ZOMBIE: 0.2;Bob
+  ZOMBIE: 0.2
 
 #
 # The items in the bag.

@@ -71,6 +71,7 @@ public class MysteryBag {
                     this.mobPredicates.put(type, pm);
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 MysteryBags.throwError("§e" + s + "§c is an invalid entity type in limit-mob in file: " + id + ".yml!");
             }
         }
