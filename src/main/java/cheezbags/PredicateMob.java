@@ -3,6 +3,7 @@ package cheezbags;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 
 public class PredicateMob {
@@ -17,10 +18,10 @@ public class PredicateMob {
         for (String name : names.split(",")) {
             if (!name.isEmpty()) {
                 if (name.startsWith("!")) {
-                    this.notnames.add(name);
+                    this.notnames.add(ChatColor.stripColor(name));
                     continue;
                 }
-                this.names.add(name);
+                this.names.add(ChatColor.stripColor(name));
             }
         }
     }
@@ -41,6 +42,7 @@ public class PredicateMob {
     public boolean matches(Entity e) {
         String s = e.getCustomName();
         if (s != null) {
+            s = ChatColor.stripColor(s);
             if (this.names.contains(s)) {
                 return true;
             }
