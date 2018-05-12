@@ -2,12 +2,15 @@ package cheezbags;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -16,7 +19,11 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 
 import cheezbags.listener.MysteryBagsListener;
 
@@ -222,6 +229,51 @@ public class MysteryBags extends JavaPlugin {
             for (ItemStack overflow : p.getInventory().addItem(item).values())
                 if (overflow != null)
                     p.getWorld().dropItem(p.getLocation().add(0.3, 0.2, 0.3), overflow);
+    }
+    
+    public static void setCustomSkullItemEncoded(ItemStack item, String base64) {
+        SkullMeta im = (SkullMeta) item.getItemMeta();
+        GameProfile profile = new GameProfile(a(base64), base64.substring(base64.length() - 10, base64.length() - 1));
+        profile.getProperties().put("textures", new Property("textures", base64));
+        Field profileField = null;
+        try {
+            profileField = im.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(im, profile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        item.setItemMeta(im);
+    }
+    
+    public static String getStringEncoded(ItemStack item) {
+        SkullMeta im = (SkullMeta) item.getItemMeta();
+        GameProfile profile = null;
+        Field profileField = null;
+        try {
+            profileField = im.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profile = (GameProfile) profileField.get(im);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        
+        Collection<Property> prop = profile.getProperties().get("textures");
+        for (Property p : prop) {
+            if (p.getName().equals("textures")) {
+                return p.getValue();
+            }
+        }
+        return null;
+    }
+    
+    private static UUID a(String base64) {
+        String sub = base64.substring(base64.length() - 13, base64.length() - 3);
+        Random rand = new Random(sub.hashCode());
+        byte[] arr = new byte[16];
+        rand.nextBytes(arr);
+        return UUID.nameUUIDFromBytes(arr);
     }
 
 }

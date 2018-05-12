@@ -1,5 +1,7 @@
 package cheezbags;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +33,7 @@ public class CommandHandler implements CommandExecutor {
         "        §7• §e%W% §7= player's world",
         "§e/mbag setamount <# OR #-#> - §7Sets the amount of the held item if received from a MysteryBag. Does not affect chance. Use \"#-#\" for a random amount between two integers.",
         "",
+        "§e/mbag skulldata <file> - §7Outputs \"internal\" data of held skull item. Saves to a file if a filename is provided.",
         "§e/mbag setname <name> - §7Sets custom name of held item",
         "§e/mbag setlore <lore> - §7Sets custom lore of held item. Use '/' for new lines",
         "§e/mbag addlore <lore> - §7Appends text to existing lore",
@@ -329,6 +332,32 @@ public class CommandHandler implements CommandExecutor {
                                 p.getInventory().addItem(item);
                             } else
                                 p.sendMessage(MysteryBags.PREFIX + "§aSuccessfully added the §e'" + storedcmd + "'§a command to held Command Book!");
+                        }
+                        return true;
+                    case "skulldata":
+                        if (sender instanceof Player) {
+                            Player p = (Player) sender;
+                            ItemStack item = p.getInventory().getItemInMainHand();
+                            if (item.getType() != Material.SKULL_ITEM || item.getDurability() != 3) {
+                                p.sendMessage(MysteryBags.PREFIX + "§aThis command only works while you're holding a player head.");
+                                return true;
+                            }
+                            
+                            try {
+                                String s = MysteryBags.getStringEncoded(item);
+                                p.sendMessage(MysteryBags.PREFIX + "§7Internal data of held head is: §e" + s);
+                                
+                                if (args.length > 1) {
+                                    String file = args[1];
+                                    FileWriter writer = new FileWriter(file.replace("/", File.separator));
+                                    writer.write(s);
+                                    writer.close();
+                                    p.sendMessage(MysteryBags.PREFIX + "§7Saved to file: §e/" + file);
+                                }
+                            } catch (Exception e) {
+                                p.sendMessage(MysteryBags.PREFIX + "§aHeld head is invalid.");
+                            }
+                            
                         }
                         return true;
                     case "amount":

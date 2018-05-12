@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Builder;
@@ -19,7 +20,6 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Animals;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
@@ -34,7 +34,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import cheezbags.events.MysteryBagOpenEvent;
-import net.md_5.bungee.api.ChatColor;
 
 public class MysteryBag {
     
@@ -55,9 +54,35 @@ public class MysteryBag {
         
         for (String s : config.getStringList("limit-mob")) {
             try {
-                limitMobs.add(ConfigReader.getEntityType(s));
+                String[] arr = s.split(";");
+                EntityType type = ConfigReader.getEntityType(arr[0]);
+                limitMobs.add(type);
+                
+                PredicateMob pm = new PredicateMob();
+                if (arr.length > 1) {
+                    pm.setNames(arr[1]);
+                }
+                
+                if (arr.length > 2) {
+                    pm.setMeta(arr[2]);
+                }
+                
+                if (!pm.isEmpty()) {
+                    this.mobPredicates.put(type, pm);
+                }
             } catch (Exception e) {
                 MysteryBags.throwError("§e" + s + "§c is an invalid entity type in limit-mob in file: " + id + ".yml!");
+            }
+        }
+        
+        for (String s : config.getStringList("limit-world")) {
+            try {
+                limitWorlds.add(s);
+                if (Bukkit.getWorld(s) == null) {
+                    MysteryBags.throwError("§e" + s + "§c in " + id + ".yml refers to a world that doesn't seem to exist! Maybe it's not loaded yet?");
+                }
+            } catch (Exception e) {
+                MysteryBags.throwError("§e" + s + "§c is an invalid world in limit-mob in file: " + id + ".yml!");
             }
         }
         
@@ -110,8 +135,14 @@ public class MysteryBag {
             try {
                 this.item = new ItemStack(Material.valueOf(split[0].toUpperCase()), 1, split.length > 1 ? Short.parseShort(split[1]) : 0);
             } catch (Exception e) {
-                MysteryBags.throwError(id + " has an invalid material specified!");
-                this.item = new ItemStack(Material.CHEST);
+                try {
+                    String b64 = split[0];
+                    this.item = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+                    MysteryBags.setCustomSkullItemEncoded(this.item, b64);
+                } catch (Exception e2) {
+                    MysteryBags.throwError(id + " has an invalid material and skull data specified!");
+                    this.item = new ItemStack(Material.CHEST);
+                }
             }
         } catch (Exception e) {
             try {
@@ -146,7 +177,7 @@ public class MysteryBag {
             config.set("always-rare", false);
             config.set("displayname", item.getItemMeta().getDisplayName().replace("§", "&"));
             config.set("openmsg", this.openmsg);
-            config.set("limit-mob", new ArrayList<EntityType>(limitMobs));
+            config.set("limit-mob", new ArrayList<EntityType>(this.limitMobs));
             config.set("failure-chance", failurechance);
             config.set("failure-lines", failureLines);
             config.set("drop-chance", dropChance);
@@ -169,8 +200,10 @@ public class MysteryBag {
     private double dropChance, failurechance;
     private Boolean allowBaby = null, allowSpawners = null;
     
-    private Set<EntityType> limitMobs = new HashSet<EntityType>();
-    private Map<EntityType, Double> dropChanceMobs = new HashMap<EntityType, Double>();
+    private Set<EntityType> limitMobs = new HashSet<>();
+    private Set<String> limitWorlds = new HashSet<>();
+    private Map<EntityType, Double> dropChanceMobs = new HashMap<>();
+    private Map<EntityType, PredicateMob> mobPredicates = new HashMap<>();
     private List<ItemStack> rawContents;
     private List<ItemStack> contents;
     
@@ -272,6 +305,15 @@ public class MysteryBag {
 
         EntityType type = entity.getType();
         if (!limitMobs.isEmpty() && !limitMobs.contains(type)) {
+            return false;
+        }
+        
+        if (!limitWorlds.isEmpty() && !limitWorlds.contains(entity.getWorld().getName())) {
+            return false;
+        }
+        
+        PredicateMob pm = this.mobPredicates.get(type);
+        if (pm != null && !pm.matches(entity)) {
             return false;
         }
         
