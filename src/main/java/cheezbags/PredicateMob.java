@@ -22,10 +22,10 @@ public class PredicateMob {
         for (String name : names.split(",")) {
             if (!name.isEmpty()) {
                 if (name.startsWith("!")) {
-                    this.notnames.add(ChatColor.stripColor(name));
+                    this.notnames.add(ChatColor.translateAlternateColorCodes('&', name));
                     continue;
                 }
-                this.names.add(ChatColor.stripColor(name));
+                this.names.add(ChatColor.translateAlternateColorCodes('&', name));
             }
         }
     }
@@ -45,7 +45,6 @@ public class PredicateMob {
     public boolean matches(Entity e) {
         String s = e.getCustomName();
         if (s != null) {
-            s = ChatColor.stripColor(s);
             if (this.names.contains(s)) {
                 return true;
             }
