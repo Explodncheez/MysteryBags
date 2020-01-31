@@ -37,7 +37,7 @@ public class MysteryBagsAPI {
         
         List<String> lore = stack.getItemMeta().getLore();
         if (lore != null && lore.size() > 0) {
-            String id = lore.get(0).replace("ง", "");
+            String id = lore.get(0).replace("ยง", "");
             MysteryBag bag = MysteryBags.instance().cheezBags.get(id);
             return bag != null;
         }

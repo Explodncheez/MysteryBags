@@ -29,8 +29,16 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.metadata.FixedMetadataValue;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.extent.Extent;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.world.World;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
 
 import cheezbags.Hand;
 import cheezbags.MysteryBag;
@@ -98,20 +106,20 @@ public class MysteryBagsListener implements Listener {
             Player p = e.getPlayer();
             ItemStack i = e.getItem();
             
-            if (i == null)
+            if (i == null || i.getType() == Material.AIR || i.getItemMeta() == null)
                 return;
 
             Hand hand = e.getHand() == EquipmentSlot.HAND ? Hand.MAIN : Hand.OFF;
             List<String> lore = i.getItemMeta().getLore();
             if (lore != null && lore.size() > 0) {
-                String id = lore.get(0).replace("§", "");
+                String id = lore.get(0).replace("Â§", "");
                 MysteryBag bag = instance.cheezBags.get(id);
                 if (bag != null) {
                     e.setCancelled(true);
                     if (p.hasPermission("mysterybags.open"))
                         bag.open(e.getPlayer(), hand);
                     else
-                        p.sendMessage(MysteryBags.PREFIX + "§7You do not have permission to open that.");
+                        p.sendMessage(MysteryBags.PREFIX + "Â§7You do not have permission to open that.");
                 }
             }
         }
@@ -125,7 +133,7 @@ public class MysteryBagsListener implements Listener {
             ItemStack item = e.getClickedInventory().getContents()[i];
             if (b(item)) {
                 e.setCancelled(true);
-                p.sendMessage(MysteryBags.PREFIX + "§7You may not craft with Mystery Bags!");
+                p.sendMessage(MysteryBags.PREFIX + "Â§7You may not craft with Mystery Bags!");
                 p.playSound(p.getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 0.4F, 1.2F);
                 p.closeInventory();
                 break;
@@ -181,7 +189,7 @@ public class MysteryBagsListener implements Listener {
             MysteryBag bag = instance.cheezBags.get(title);
             if (bag != null) {
                 bag.closeEditor((Player) e.getPlayer(), e.getInventory());
-                e.getPlayer().sendMessage(MysteryBags.PREFIX + "§aRemember to use §e/mbags save " + title + " §ato save your changes!");
+                e.getPlayer().sendMessage(MysteryBags.PREFIX + "Â§aRemember to use Â§e/mbags save " + title + " Â§ato save your changes!");
             }
             e.getPlayer().removeMetadata("cheezbags.editor", MysteryBags.instance());
         }
@@ -192,7 +200,10 @@ public class MysteryBagsListener implements Listener {
             return true;
         
         Set<String> returned = new HashSet<String>();
-        for (ProtectedRegion p : WorldGuardPlugin.inst().getRegionManager(loc.getWorld()).getApplicableRegions(loc).getRegions()) {
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionQuery query = container.createQuery();
+        ApplicableRegionSet aset = query.getApplicableRegions(BukkitAdapter.adapt(loc));
+        for (ProtectedRegion p : aset.getRegions()) {
             returned.add(p.getId());
         }
         return returned.removeAll(set);
@@ -202,7 +213,7 @@ public class MysteryBagsListener implements Listener {
         if (item != null && item.getType() != Material.AIR) {
             List<String> lore = item.getItemMeta().getLore();
             if (lore != null) {
-                return MysteryBags.instance().cheezBags.containsKey(lore.get(0).replace("§", ""));
+                return MysteryBags.instance().cheezBags.containsKey(lore.get(0).replace("Â§", ""));
             }
         }
         return false;

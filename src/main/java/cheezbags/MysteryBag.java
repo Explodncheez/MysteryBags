@@ -72,7 +72,7 @@ public class MysteryBag {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                MysteryBags.throwError("§e" + s + "§c is an invalid entity type in limit-mob in file: " + id + ".yml!");
+                MysteryBags.throwError("Â§e" + s + "Â§c is an invalid entity type in limit-mob in file: " + id + ".yml!");
             }
         }
         
@@ -80,10 +80,10 @@ public class MysteryBag {
             try {
                 limitWorlds.add(s);
                 if (Bukkit.getWorld(s) == null) {
-                    MysteryBags.throwError("§e" + s + "§c in " + id + ".yml refers to a world that doesn't seem to exist! Maybe it's not loaded yet?");
+                    MysteryBags.throwError("Â§e" + s + "Â§c in " + id + ".yml refers to a world that doesn't seem to exist! Maybe it's not loaded yet?");
                 }
             } catch (Exception e) {
-                MysteryBags.throwError("§e" + s + "§c is an invalid world in limit-mob in file: " + id + ".yml!");
+                MysteryBags.throwError("Â§e" + s + "Â§c is an invalid world in limit-mob in file: " + id + ".yml!");
             }
         }
         
@@ -95,14 +95,14 @@ public class MysteryBag {
             try {
                 type = ConfigReader.getEntityType(s);
             } catch (Exception e) {
-                MysteryBags.throwError("§e" + s + "§c is an invalid entity type in drop-chance-mob in file: " + id + ".yml!");
+                MysteryBags.throwError("Â§e" + s + "Â§c is an invalid entity type in drop-chance-mob in file: " + id + ".yml!");
                 continue;
             }
             
             try {
                 d = Double.parseDouble(config.getString("drop-chance-mobs." + s));
             } catch (NumberFormatException e) {
-                MysteryBags.throwError("§e" + s + "§c is an invalid entity number in drop-chance-mob in file: " + id + ".yml!");
+                MysteryBags.throwError("Â§e" + s + "Â§c is an invalid entity number in drop-chance-mob in file: " + id + ".yml!");
                 continue;
             }
             
@@ -112,16 +112,16 @@ public class MysteryBag {
         this.failurechance = config.getDouble("failure-chance");
         
         for (String s : config.getStringList("failure-lines"))
-            failureLines.add(s.replace("&", "§"));
+            failureLines.add(s.replace("&", "Â§"));
         
         for (ItemStack item : (List<ItemStack>) config.get("items")) {
             ItemMeta meta = item.getItemMeta();
             if (meta.hasDisplayName())
-                meta.setDisplayName(meta.getDisplayName().replace("&", "§"));
+                meta.setDisplayName(meta.getDisplayName().replace("&", "Â§"));
             if (meta.hasLore()) {
                 List<String> newLore = new ArrayList<String>();
                 for (String lore : meta.getLore())
-                    newLore.add(lore.replace("&", "§"));
+                    newLore.add(lore.replace("&", "Â§"));
                 meta.setLore(newLore);
             }
             item.setItemMeta(meta);
@@ -138,7 +138,7 @@ public class MysteryBag {
             } catch (Exception e) {
                 try {
                     String b64 = split[0];
-                    this.item = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+                    this.item = new ItemStack(Material.PLAYER_HEAD);
                     MysteryBags.setCustomSkullItemEncoded(this.item, b64);
                 } catch (Exception e2) {
                     MysteryBags.throwError(id + " has an invalid material and skull data specified!");
@@ -155,11 +155,11 @@ public class MysteryBag {
         }
         
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(displayname.replace("&", "§"));
+        meta.setDisplayName(displayname.replace("&", "Â§"));
         List<String> lore = new ArrayList<String>();
-        lore.add(id.replaceAll("(.)", "§$1"));
+        lore.add(id.replaceAll("(.)", "Â§$1"));
         for (String string : openmsg)
-            lore.add(string.replace("&", "§"));
+            lore.add(string.replace("&", "Â§"));
         meta.setLore(lore);
         item.setItemMeta(meta);
         
@@ -176,7 +176,7 @@ public class MysteryBag {
             config.set("material", item.getType() + ":" + item.getDurability());
             config.set("give-all-items", false);
             config.set("always-rare", false);
-            config.set("displayname", item.getItemMeta().getDisplayName().replace("§", "&"));
+            config.set("displayname", item.getItemMeta().getDisplayName().replace("Â§", "&"));
             config.set("openmsg", this.openmsg);
             config.set("limit-mob", new ArrayList<EntityType>(this.limitMobs));
             config.set("failure-chance", failurechance);
@@ -243,14 +243,14 @@ public class MysteryBag {
         for (ItemStack item : rawContents) {
             ItemStack clone = item.clone();
             ItemMeta meta = clone.getItemMeta();
-            if (meta.getLore() != null && meta.getLore().get(0).startsWith("§c§lAMOUNT: §f")) {
+            if (meta.getLore() != null && meta.getLore().get(0).startsWith("Â§cÂ§lAMOUNT: Â§f")) {
                 String amount = ChatColor.stripColor(meta.getLore().get(0)).split(" ")[1];
                 List<String> lore = meta.getLore();
                 lore.remove(0);
                 meta.setLore(lore);
 
                 if (amount.contains("-")) {
-                    meta.setDisplayName((meta.hasDisplayName() ? meta.getDisplayName() : "§j") + " statistic_item_amount " + amount);
+                    meta.setDisplayName((meta.hasDisplayName() ? meta.getDisplayName() : "Â§j") + " statistic_item_amount " + amount);
                 } else {
                     clone.setAmount(Integer.parseInt(amount));
                 }
@@ -327,10 +327,12 @@ public class MysteryBag {
         }
         
         double mod = MysteryBags.instance().lootingSensitiveChance ? chanceIncrease : 0;
+        boolean isAdd = MysteryBags.instance().lootingIsAddition;
         double rng = random();
-        return dropChanceMobs.containsKey(type) ?
-                rng < dropChanceMobs.get(type) + mod :
-                rng < dropChance + mod;
+        
+        double max = dropChanceMobs.getOrDefault(type, dropChance);
+        double adjmax = isAdd ? max + mod : max * (1 + mod);
+        return rng < adjmax;
     }
     
     /**
@@ -407,7 +409,7 @@ public class MysteryBag {
             p.sendMessage(MysteryBags.getOpenMessage(loot).replace("%BAG%", this.item.getItemMeta().hasDisplayName() ? this.item.getItemMeta().getDisplayName() : id));
             
             if (MysteryBags.instance().spyMessage) {
-                String message = MysteryBags.PREFIX + "§6" + p.getName() + " §7opened a(n) §e" + id + " §7and got §e" + (loot.getAmount() > 1 ? loot.getAmount() + " x " : "") + loot.getType() + (loot.getItemMeta().getDisplayName() == null ? "" : " §7called §6" + loot.getItemMeta().getDisplayName()) + "§7!";
+                String message = MysteryBags.PREFIX + "Â§6" + p.getName() + " Â§7opened a(n) Â§e" + id + " Â§7and got Â§e" + (loot.getAmount() > 1 ? loot.getAmount() + " x " : "") + loot.getType() + (loot.getItemMeta().getDisplayName() == null ? "" : " Â§7called Â§6" + loot.getItemMeta().getDisplayName()) + "Â§7!";
                 for (OfflinePlayer op : Bukkit.getOperators())
                     if (op.isOnline() && !op.getPlayer().equals(p))
                         op.getPlayer().sendMessage(message);
@@ -423,7 +425,7 @@ public class MysteryBag {
     private static void giveLoot(Player p, ItemStack loot) {
         if (loot.getType() == Material.WRITTEN_BOOK) {
             List<String> lore = loot.getItemMeta().getLore();
-            if (lore != null && lore.get(0).equals("§e§lRun Command:§j§j§j")) {
+            if (lore != null && lore.get(0).equals("Â§eÂ§lRun Command:Â§jÂ§jÂ§j")) {
                 for (int i = 1; i < lore.size(); i++) {
                     String command = lore.get(i).substring(3);
                     Location loc = p.getLocation();
@@ -440,7 +442,7 @@ public class MysteryBag {
             loot.setAmount(amount);
             
             ItemMeta meta = loot.getItemMeta();
-            meta.setDisplayName(thingy[0].equals("§j") ? null : thingy[0]);
+            meta.setDisplayName(thingy[0].equals("Â§j") ? null : thingy[0]);
             loot.setItemMeta(meta);
         }
         MysteryBags.giveItem(p, loot);

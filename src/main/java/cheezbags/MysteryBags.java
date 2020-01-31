@@ -29,13 +29,14 @@ import cheezbags.listener.MysteryBagsListener;
 
 public class MysteryBags extends JavaPlugin {
     
-    public static final String PREFIX = "§2[MysteryBags] §f";
+    public static final String PREFIX = "Â§2[MysteryBags] Â§f";
     
     private static MysteryBags instance;
     public static String VERSION;
     
     public boolean overrideDrops, dropFromMobs, requirePlayerKill, lootingSensitiveChance, lootingSensitiveAmount, spyMessage, announceRare, rareSound, rareFirework, logBags, logRares, worldguard, allowBaby, allowSpawners;
     public double lootingEffectiveness;
+    public boolean lootingIsAddition;
     
     public Set<String> limitRegions, limitWorlds;
     public String rareLootMessage, openMessage;
@@ -96,10 +97,11 @@ public class MysteryBags extends JavaPlugin {
         lootingSensitiveChance = ConfigReader.getBoolean(config, "looting-sensitive");
         lootingSensitiveAmount = ConfigReader.getBoolean(config, "looting-increases-amount");
         lootingEffectiveness = config.getDouble("looting-effectiveness");
+        lootingIsAddition = ConfigReader.getBoolean(config, "looting-is-additive");
         limitRegions = new HashSet<String>(config.getStringList("drop-limit-to-area"));
         limitWorlds = new HashSet<String>(config.getStringList("drop-limit-to-world"));
-        openMessage = config.getString("open-message").replace("&", "§");
-        rareLootMessage = config.getString("announce-rare-loot-message").replace("&", "§");
+        openMessage = config.getString("open-message").replace("&", "Â§");
+        rareLootMessage = config.getString("announce-rare-loot-message").replace("&", "Â§");
         spyMessage = ConfigReader.getBoolean(config, "openingspymessage");
         announceRare = ConfigReader.getBoolean(config, "announce-rare-loot");
         rareFirework = ConfigReader.getBoolean(config, "rare-loot-firework");
@@ -154,11 +156,11 @@ public class MysteryBags extends JavaPlugin {
     }
     
     public static void throwError(String s) {
-        Bukkit.getConsoleSender().sendMessage("§4[ERROR] §c" + s);
+        Bukkit.getConsoleSender().sendMessage("Â§4[ERROR] Â§c" + s);
     }
     
     public static boolean isRare(ItemStack loot) {
-        String nameToCheck = loot.getItemMeta().hasDisplayName() ? loot.getItemMeta().getDisplayName().replace("§", "&") : null;
+        String nameToCheck = loot.getItemMeta().hasDisplayName() ? loot.getItemMeta().getDisplayName().replace("Â§", "&") : null;
         if (nameToCheck != null)
             nameToCheck = nameToCheck.contains(" statistic_item_amount ") ? nameToCheck.split(" statistic_item_amount ")[0] : nameToCheck;
         return instance.rares.containsKey(loot.getType()) && (instance.rares.get(loot.getType()).isEmpty() || instance.rares.get(loot.getType()).contains(nameToCheck));
@@ -173,7 +175,7 @@ public class MysteryBags extends JavaPlugin {
         if (!meta.hasDisplayName())
             return true;
         String[] split = meta.getDisplayName().split(" statistic_item_amount ");
-        if (split.length > 1 && split[0].equals("§j")) {
+        if (split.length > 1 && split[0].equals("Â§j")) {
             return true;
         }
         return false;
@@ -189,7 +191,7 @@ public class MysteryBags extends JavaPlugin {
         if (item == null || item.getType() != Material.WRITTEN_BOOK)
             return false;
         ItemMeta meta = item.getItemMeta();
-        return meta.hasLore() && meta.getLore().get(0).equals("§e§lRun Command:§j§j§j");
+        return meta.hasLore() && meta.getLore().get(0).equals("Â§eÂ§lRun Command:Â§jÂ§jÂ§j");
     }
     
     public static String capitalizeFirst(String s) {

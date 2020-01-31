@@ -4,6 +4,7 @@ author: Explodncheez
 description: Random bags that drop from mobs!
 version: 1.40
 softdepend: [WorldGuard, WorldEdit]
+api-version: 1.13
 
 commands:
   mysterybags:
